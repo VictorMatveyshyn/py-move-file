@@ -40,5 +40,3 @@ def move_file(command: str) -> str:
     os.remove(source_file)
     return (f"File {source_file} has been moved to "
             f"{common_dir}")
-
-move_file("mv file.txt first_dir/second_dir/third_dir/file2/ ")
