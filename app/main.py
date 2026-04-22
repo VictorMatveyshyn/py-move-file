@@ -3,34 +3,33 @@ import os
 
 def move_file(command: str) -> str:
 
-    arguments = command.split()
-    if len(arguments) != 3:
-        return "Too few parameter(s)"
-    if arguments[0] != "mv":
+    try:
+        verb, source_file, path_to_outfile = command.split()
+    except ValueError as e:
+        return str(e)
+    if verb != "mv":
         return "Not a valid command"
 
-    source_file = arguments[1]
-    destination_dir = arguments[2].split("/")
-    if arguments[2][-1] != "/":
-        destination_file = destination_dir.pop()
-    else:
+    destination_dir = os.path.dirname(path_to_outfile).split("/")
+    destination_file = os.path.basename(path_to_outfile)
+
+    if not destination_file:
         destination_file = source_file
 
-    common_dir = ""
-
+    destination_path = ""
     if len(destination_dir) != 0:
-        for directory in destination_dir:
-            common_dir = os.path.join(common_dir, directory)
-            try:
-                os.mkdir(common_dir)
-                pass
-            except FileExistsError:
-                pass
+        for subdirectory in destination_dir:
+            if subdirectory != "":
+                destination_path = os.path.join(destination_path, subdirectory)
+                try:
+                    os.mkdir(destination_path)
+                except FileExistsError:
+                    pass
 
-    common_dir = os.path.join(common_dir, destination_file)
+    destination_path = os.path.join(destination_path, destination_file)
     try:
         with (open(source_file, "r") as file_in,
-              open(common_dir, "w") as file_out):
+              open(destination_path, "w") as file_out):
             file_out.write(file_in.read())
     except FileNotFoundError as e:
         return str(e)
@@ -39,4 +38,4 @@ def move_file(command: str) -> str:
 
     os.remove(source_file)
     return (f"File {source_file} has been moved to "
-            f"{common_dir}")
+            f"{destination_path}")
